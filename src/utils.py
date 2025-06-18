@@ -10,3 +10,4 @@ def read_pdf(file):
     return "\n\n".join(
         [reader.pages[i].extract_text() for i in range(len(reader.pages))]
     )
+
