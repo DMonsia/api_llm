@@ -1,8 +1,8 @@
 from typing import Annotated
 from fastapi import FastAPI, HTTPException, UploadFile, Body
 
-from src.chain import chat_invoke, qa_invoke
-from src.prompts import summary_prompt, instruction_summary, chat_prompt
+from src.chain import invoke
+from src.prompts import summary_prompt_template, chat_prompt
 from src.utils import read_pdf, read_text
 
 app = FastAPI(
@@ -26,20 +26,17 @@ async def get_summary(file: UploadFile):
             status_code=500, detail="Only '.pdf' and '.txt' files are supported."
         )
 
-    response = qa_invoke(
-        query=summary_prompt.format(content=content),
-        instruction_prompt=instruction_summary,
-    )
+    response = invoke(query=summary_prompt_template.invoke(input={"content": content}))
 
     return {
         "filename": file.filename,
-        "summary": response.output_text,
+        "summary": response.content,
     }
 
 
 @app.post("/chat")
 def chat(messages: Annotated[list[dict[str, str]], Body()]):
-    messages = [{"role": "developer", "content": chat_prompt}] + messages
+    prompt = chat_prompt.invoke(input={"messages": messages})
 
-    response = chat_invoke(messages)
-    return {"role": "assistant", "content": response.output_text}
+    response = invoke(prompt)
+    return {"role": "assistant", "content": response.content}

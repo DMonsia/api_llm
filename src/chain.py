@@ -1,20 +1,14 @@
-from openai import OpenAI
+from langchain.chat_models import init_chat_model
 
 import configs
 
-client = OpenAI(api_key=configs.OPENAI_API_KEY)
+model = init_chat_model(
+    model="gpt-4o",
+    temperature=1.5,
+    model_provider="openai",
+    api_key=configs.OPENAI_API_KEY,
+)
 
 
-def qa_invoke(query, instruction_prompt):
-    return client.responses.create(
-        instructions=instruction_prompt,
-        model="gpt-4o",
-        input=[{"role": "user", "content": query}],
-    )
-
-
-def chat_invoke(messages: list[dict[str, str]]):
-    return client.responses.create(
-        model="gpt-4o",
-        input=messages,
-    )
+def invoke(query):
+    return model.invoke(query)
