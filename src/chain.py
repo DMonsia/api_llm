@@ -1,4 +1,5 @@
 from langchain.chat_models import init_chat_model
+from langchain_core.output_parsers.string import StrOutputParser
 
 import configs
 
@@ -10,5 +11,5 @@ model = init_chat_model(
 )
 
 
-def invoke(query):
-    return model.invoke(query)
+def get_chain(prompt):
+    return prompt | model | StrOutputParser()
